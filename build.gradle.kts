@@ -9,7 +9,6 @@ version = "1.0.1"
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.codemc.io/repository/maven-releases/")
     maven("https://repo.codemc.io/repository/maven-snapshots/")
@@ -17,7 +16,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
-    implementation("io.github.lumine1909:reflexion:1.0-SNAPSHOT")
+    implementation("io.github.lumine1909:reflexion:1.0.1")
 }
 
 tasks {
