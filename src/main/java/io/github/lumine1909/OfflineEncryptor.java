@@ -23,6 +23,7 @@ public class OfflineEncryptor extends JavaPlugin {
             throw new IllegalStateException("Encryption is already enabled in online mode");
         }
         metrics = new Metrics(this, 27945);
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         ChannelInitializeListenerHolder.addListener(KEY, packetProcessor::inject);
     }
 
