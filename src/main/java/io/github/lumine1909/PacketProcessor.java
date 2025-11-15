@@ -10,11 +10,9 @@ import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.network.protocol.login.ServerboundKeyPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 
 import javax.crypto.SecretKey;
-import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,22 +57,18 @@ public class PacketProcessor {
             if (msg instanceof ServerboundHelloPacket packet) {
                 this.name = packet.name();
                 ServerLoginPacketListenerImpl login = (ServerLoginPacketListenerImpl) connection.getPacketListener();
-                login.state = ServerLoginPacketListenerImpl.State.KEY;
                 SERVERBOUND_HELLO_CACHE.put(name, packet);
                 connection.send(HELLO_PACKET_FACTORY.apply(login));
                 return;
             } else if (msg instanceof ServerboundKeyPacket packet) {
                 ServerLoginPacketListenerImpl login = (ServerLoginPacketListenerImpl) connection.getPacketListener();
-                final String string;
                 try {
-                    PrivateKey _private = server.getKeyPair().getPrivate();
-                    if (!packet.isChallengeValid(field$challenge.get(login), _private)) {
+                    PrivateKey privateKey = server.getKeyPair().getPrivate();
+                    if (!packet.isChallengeValid(field$challenge.get(login), privateKey)) {
                         throw new IllegalStateException("Protocol error");
                     }
 
-                    SecretKey secretKey = packet.getSecretKey(_private);
-                    string = new BigInteger(Crypt.digestData("", server.getKeyPair().getPublic(), secretKey)).toString(16);
-                    login.state = ServerLoginPacketListenerImpl.State.HELLO;
+                    SecretKey secretKey = packet.getSecretKey(privateKey);
                     this.connection.setEncryptionKey(secretKey);
                     channel.eventLoop().schedule(() -> {
                         uninject(channel);
