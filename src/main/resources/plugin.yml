@@ -1,4 +1,4 @@
-name: OnlineEncryptor
+name: OfflineEncryptor
 version: 1.0.1
 main: io.github.lumine1909.OfflineEncryptor
 api-version: 1.21
