@@ -1,6 +1,5 @@
 package io.github.lumine1909;
 
-import io.github.lumine1909.reflexion.Class;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
@@ -24,9 +23,9 @@ import java.util.function.Function;
 
 public class PacketProcessor {
 
-    private static final Field<byte[]> challenge = Class.of(ServerLoginPacketListenerImpl.class).getField("challenge", byte[].class).orElseThrow();
+    private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge", byte[].class);
     private static final Function<ServerLoginPacketListenerImpl, ClientboundHelloPacket> HELLO_PACKET_FACTORY = listener ->
-        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), challenge.get(listener), false);
+        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(listener), false);
     private static final Map<String, ServerboundHelloPacket> SERVERBOUND_HELLO_CACHE = new HashMap<>();
     private static final MinecraftServer server = MinecraftServer.getServer();
 
@@ -69,7 +68,7 @@ public class PacketProcessor {
                 final String string;
                 try {
                     PrivateKey _private = server.getKeyPair().getPrivate();
-                    if (!packet.isChallengeValid(challenge.get(login), _private)) {
+                    if (!packet.isChallengeValid(field$challenge.get(login), _private)) {
                         throw new IllegalStateException("Protocol error");
                     }
 
