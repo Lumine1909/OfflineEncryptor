@@ -6,7 +6,6 @@ import com.velocitypowered.proxy.protocol.packet.EncryptionRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.EncryptionResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
-import com.viaversion.viaversion.api.Via;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
 import io.github.lumine1909.offlineencryptor.ViaVersionUtil;
@@ -49,7 +48,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
             processC2SHandshake(ctx, packet);
         }
         if (msg instanceof ServerLoginPacket packet) {
-           if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+            if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
                 super.channelRead(ctx, msg);
                 return;
             }

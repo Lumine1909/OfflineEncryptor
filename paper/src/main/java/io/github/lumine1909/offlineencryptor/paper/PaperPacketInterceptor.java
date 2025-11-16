@@ -1,7 +1,5 @@
 package io.github.lumine1909.offlineencryptor.paper;
 
-import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.connection.UserConnection;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
 import io.github.lumine1909.offlineencryptor.ViaVersionUtil;
