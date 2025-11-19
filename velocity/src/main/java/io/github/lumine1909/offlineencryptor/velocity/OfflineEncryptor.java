@@ -5,20 +5,14 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.proxy.VelocityServer;
-import com.velocitypowered.proxy.connection.client.InitialInboundConnection;
-import com.velocitypowered.proxy.connection.client.LoginInboundConnection;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.velocity.metrics.Metrics;
-import io.github.lumine1909.reflexion.Field;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
 public class OfflineEncryptor {
-
-    private static final Field<InitialInboundConnection> field$delegate = Field.of(
-        LoginInboundConnection.class, "delegate", InitialInboundConnection.class);
 
     public static OfflineEncryptor plugin;
 
