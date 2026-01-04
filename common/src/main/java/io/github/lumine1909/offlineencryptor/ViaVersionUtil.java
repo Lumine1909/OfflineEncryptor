@@ -56,7 +56,7 @@ public interface ViaVersionUtil {
         public Optional<UserConnection> getConnection(Channel channel) {
             Object viaEncoder = channel.pipeline().get("via-encoder");
             try {
-                return Optional.of(field$UserConnection.get(viaEncoder));
+                return Optional.of(field$UserConnection.getFast(viaEncoder));
             } catch (Exception e) {
                 return Optional.empty();
             }

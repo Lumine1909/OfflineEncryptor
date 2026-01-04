@@ -21,7 +21,7 @@ public class ServerChannelInitializerInjector {
 
     @SuppressWarnings("deprecation")
     public static void injectToServer(VelocityServer server) {
-        ConnectionManager cm = field$cm.get(server);
+        ConnectionManager cm = field$cm.getFast(server);
         ChannelInitializer<Channel> initializer = cm.serverChannelInitializer.get();
         cm.serverChannelInitializer.set(createDelegatedInitializer(initializer));
     }
@@ -30,7 +30,7 @@ public class ServerChannelInitializerInjector {
         return new ChannelInitializer<>() {
             @Override
             protected void initChannel(Channel channel) {
-                method$initChannel.invokeFast(delegate, channel);
+                method$initChannel.invoke(delegate, channel);
                 plugin.getNetworkProcessor().inject(channel);
             }
         };

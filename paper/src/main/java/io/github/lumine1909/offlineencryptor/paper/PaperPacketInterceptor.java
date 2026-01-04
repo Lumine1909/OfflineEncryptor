@@ -25,7 +25,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
 
     private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge", byte[].class);
     private static final Function<ServerLoginPacketListenerImpl, ClientboundHelloPacket> HELLO_PACKET_FACTORY = listener ->
-        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(listener), false);
+        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.getFast(listener), false);
     private static final MinecraftServer server = MinecraftServer.getServer();
     private static final ViaVersionUtil viaUtil = ViaVersionUtil.create(false, Bukkit.getPluginManager().getPlugin("ViaVersion") != null);
 
@@ -78,7 +78,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
         ServerLoginPacketListenerImpl login = (ServerLoginPacketListenerImpl) connection.getPacketListener();
         try {
             PrivateKey privateKey = server.getKeyPair().getPrivate();
-            if (!packet.isChallengeValid(field$challenge.get(login), privateKey)) {
+            if (!packet.isChallengeValid(field$challenge.getFast(login), privateKey)) {
                 throw new IllegalStateException("Protocol error");
             }
             SecretKey secretKey = packet.getSecretKey(privateKey);
