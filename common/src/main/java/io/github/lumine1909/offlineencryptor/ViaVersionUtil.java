@@ -35,8 +35,7 @@ public interface ViaVersionUtil {
 
     class Velocity implements ViaVersionUtil {
 
-        private final Field<UserConnection> field$UserConnection = Field.of(
-            "com.viaversion.viaversion.velocity.handlers.VelocityEncodeHandler", "info", UserConnection.class);
+        private final Field<UserConnection> field$UserConnection = Field.of("com.viaversion.viaversion.velocity.handlers.VelocityEncodeHandler", "info", UserConnection.class);
 
         public Optional<UserConnection> getConnection(Channel channel) {
             Object viaEncoder = channel.pipeline().get("via-encoder");
@@ -50,8 +49,7 @@ public interface ViaVersionUtil {
 
     class Paper implements ViaVersionUtil {
 
-        private final Field<UserConnection> field$UserConnection = Field.of(
-            "com.viaversion.viaversion.bukkit.handlers.BukkitEncodeHandler", "connection", UserConnection.class);
+        private final Field<UserConnection> field$UserConnection = Field.of("com.viaversion.viaversion.bukkit.handlers.BukkitEncodeHandler", "connection", UserConnection.class);
 
         public Optional<UserConnection> getConnection(Channel channel) {
             Object viaEncoder = channel.pipeline().get("via-encoder");

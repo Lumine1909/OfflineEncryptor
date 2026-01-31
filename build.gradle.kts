@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.lumine1909"
-version = "2.0.3"
+version = "2.0.4"
 
 repositories {
     mavenCentral()
@@ -52,7 +52,7 @@ subprojects {
         maven("https://repo.viaversion.com")
     }
     dependencies {
-        implementation("io.github.lumine1909:reflexion:2.1.0")
+        implementation("io.github.lumine1909:reflexion:3.1.0")
         compileOnly("io.netty:netty-all:4.1.118.Final")
         compileOnly("com.viaversion:viaversion-api:5.5.1")
     }
