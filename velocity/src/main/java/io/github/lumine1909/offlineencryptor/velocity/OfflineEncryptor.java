@@ -1,5 +1,6 @@
 package io.github.lumine1909.offlineencryptor.velocity;
 
+import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -8,9 +9,7 @@ import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.velocity.metrics.Metrics;
-
-import javax.inject.Inject;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 public class OfflineEncryptor {
 
