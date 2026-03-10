@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPacket, ServerboundHelloPacket, ServerboundKeyPacket> {
 
-    private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge", byte[].class);
+    private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge");
     private static final Function<ServerLoginPacketListenerImpl, ClientboundHelloPacket> HELLO_PACKET_FACTORY = listener ->
         new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.getFast(listener), false);
     private static final MinecraftServer server = MinecraftServer.getServer();

@@ -24,9 +24,7 @@ import static io.github.lumine1909.offlineencryptor.velocity.OfflineEncryptor.pl
 
 public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket, ServerLoginPacket, EncryptionResponsePacket> {
 
-    private static final Field<Boolean> field$authenticate = Field.of(
-        EncryptionRequestPacket.class, "shouldAuthenticate", boolean.class
-    );
+    private static final Field<Boolean> field$authenticate = Field.of(EncryptionRequestPacket.class, "shouldAuthenticate");
 
     private static final ViaVersionUtil viaUtil = ViaVersionUtil.create(true, plugin.getServer().getPluginManager().getPlugin("viaversion").isPresent());
 

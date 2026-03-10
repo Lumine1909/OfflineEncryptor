@@ -41,9 +41,9 @@ public interface ViaVersionUtil {
         static {
             Field<UserConnection> field;
             try {
-                field = Field.of("com.viaversion.viaversion.platform.ViaEncodeHandler", "connection", UserConnection.class);
+                field = Field.of("com.viaversion.viaversion.platform.ViaEncodeHandler", "connection");
             } catch (NotFoundException e) {
-                field = Field.of("com.viaversion.viaversion.velocity.handlers.VelocityEncodeHandler", "info", UserConnection.class);
+                field = Field.of("com.viaversion.viaversion.velocity.handlers.VelocityEncodeHandler", "info");
             }
             field$UserConnection = field;
         }
@@ -65,9 +65,9 @@ public interface ViaVersionUtil {
         static {
             Field<UserConnection> field;
             try {
-                field = Field.of("com.viaversion.viaversion.platform.ViaEncodeHandler", "connection", UserConnection.class);
+                field = Field.of("com.viaversion.viaversion.platform.ViaEncodeHandler", "connection");
             } catch (NotFoundException e) {
-                field = Field.of("com.viaversion.viaversion.bukkit.handlers.BukkitEncodeHandler", "connection", UserConnection.class);
+                field = Field.of("com.viaversion.viaversion.bukkit.handlers.BukkitEncodeHandler", "connection");
             }
             field$UserConnection = field;
         }
