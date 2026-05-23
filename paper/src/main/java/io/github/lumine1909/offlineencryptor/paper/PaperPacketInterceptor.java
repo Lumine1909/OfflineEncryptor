@@ -25,7 +25,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
 
     private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge");
     private static final Function<ServerLoginPacketListenerImpl, ClientboundHelloPacket> HELLO_PACKET_FACTORY = listener ->
-        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.getFast(listener), false);
+        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(listener), false);
     private static final MinecraftServer server = MinecraftServer.getServer();
     private static final ViaVersionUtil viaUtil = ViaVersionUtil.create(false, Bukkit.getPluginManager().getPlugin("ViaVersion") != null);
 
@@ -42,19 +42,20 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
             super.channelRead(ctx, msg);
             return;
         }
-        if (msg instanceof ClientIntentionPacket packet) {
-            processC2SHandshake(ctx, packet);
-        }
-        if (msg instanceof ServerboundHelloPacket packet) {
-            if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+        switch (msg) {
+            case ClientIntentionPacket packet -> {
+                processC2SHandshake(ctx, packet);
                 super.channelRead(ctx, msg);
-                return;
             }
-            processC2SHello(ctx, packet);
-        } else if (msg instanceof ServerboundKeyPacket packet) {
-            processC2SResponse(ctx, packet);
-        } else {
-            super.channelRead(ctx, msg);
+            case ServerboundHelloPacket packet -> {
+                if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+                    super.channelRead(ctx, msg);
+                    return;
+                }
+                processC2SHello(ctx, packet);
+            }
+            case ServerboundKeyPacket packet -> processC2SResponse(ctx, packet);
+            default -> super.channelRead(ctx, msg);
         }
     }
 
@@ -78,14 +79,14 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
         ServerLoginPacketListenerImpl login = (ServerLoginPacketListenerImpl) connection.getPacketListener();
         try {
             PrivateKey privateKey = server.getKeyPair().getPrivate();
-            if (!packet.isChallengeValid(field$challenge.getFast(login), privateKey)) {
+            if (!packet.isChallengeValid(field$challenge.get(login), privateKey)) {
                 throw new IllegalStateException("Protocol error");
             }
             SecretKey secretKey = packet.getSecretKey(privateKey);
             this.connection.setEncryptionKey(secretKey);
             channel.eventLoop().schedule(() -> {
-                processor.uninject(channel);
                 ctx.fireChannelRead(processor.getCache().remove(username));
+                processor.uninject(channel);
             }, 500, TimeUnit.MILLISECONDS); // Let you know you are using encryption :)
         } catch (CryptException e) {
             throw new IllegalStateException("Protocol error", e);

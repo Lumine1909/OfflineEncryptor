@@ -1,10 +1,11 @@
 plugins {
     java
     id("com.gradleup.shadow")
+    id("com.modrinth.minotaur")
 }
 
 group = "io.github.lumine1909"
-version = "2.0.6"
+version = "2.0.7"
 
 repositories {
     mavenCentral()
@@ -42,6 +43,22 @@ tasks {
     }
 }
 
+modrinth {
+    token.set(project.findProperty("modrinthKey") as? String ?: "")
+    projectId.set("offlineencryptor")
+    versionNumber.set(version as String)
+    versionName.set("OfflineEncryptor $version")
+    versionType.set("release")
+    uploadFile.set(tasks.shadowJar)
+    loaders.addAll("bukkit", "paper", "purpur", "folia", "velocity")
+
+    gameVersions.addAll(generateVersions("1.20", 5, 6))
+    gameVersions.addAll(generateVersions("1.21", 0, 11))
+    gameVersions.addAll(generateVersions("26.1", 0, 2))
+}
+
+fun generateVersions(mm: String, start: Int, end: Int): List<String> = (start..end).map { if (it == 0) mm else "$mm.$it" }
+
 subprojects {
     apply(plugin = "java")
 
@@ -51,7 +68,7 @@ subprojects {
         maven("https://repo.velocitypowered.com/snapshots/")
     }
     dependencies {
-        implementation("io.github.lumine1909:reflexion:0.3.2")
+        implementation("io.github.lumine1909:reflexion:0.4.1")
         compileOnly("io.netty:netty-all:4.1.118.Final")
     }
     java {

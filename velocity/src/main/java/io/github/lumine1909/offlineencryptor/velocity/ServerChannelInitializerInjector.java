@@ -21,7 +21,7 @@ public class ServerChannelInitializerInjector {
 
     @SuppressWarnings("deprecation")
     public static void injectToServer(VelocityServer server) {
-        ConnectionManager cm = field$cm.getFast(server);
+        ConnectionManager cm = field$cm.get(server);
         ChannelInitializer<Channel> initializer = cm.serverChannelInitializer.get();
         cm.serverChannelInitializer.set(createDelegatedInitializer(initializer));
     }

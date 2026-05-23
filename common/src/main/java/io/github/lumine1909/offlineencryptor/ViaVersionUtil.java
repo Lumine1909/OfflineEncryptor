@@ -14,10 +14,7 @@ public interface ViaVersionUtil {
         if (!hasVia) {
             return new Dummy();
         }
-        if (isVelocity) {
-            return new Velocity();
-        }
-        return new Paper();
+        return isVelocity ? new Velocity() : new Paper();
     }
 
     @SuppressWarnings("deprecation")
@@ -75,7 +72,7 @@ public interface ViaVersionUtil {
         public Optional<UserConnection> getConnection(Channel channel) {
             Object viaEncoder = channel.pipeline().get("via-encoder");
             try {
-                return Optional.of(field$UserConnection.getFast(viaEncoder));
+                return Optional.of(field$UserConnection.get(viaEncoder));
             } catch (Exception e) {
                 return Optional.empty();
             }

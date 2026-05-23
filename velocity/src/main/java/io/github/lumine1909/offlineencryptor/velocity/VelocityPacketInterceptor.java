@@ -42,19 +42,20 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
             super.channelRead(ctx, msg);
             return;
         }
-        if (msg instanceof HandshakePacket packet) {
-            processC2SHandshake(ctx, packet);
-        }
-        if (msg instanceof ServerLoginPacket packet) {
-            if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+        switch (msg) {
+            case HandshakePacket packet -> {
+                processC2SHandshake(ctx, packet);
                 super.channelRead(ctx, msg);
-                return;
             }
-            processC2SHello(ctx, packet);
-        } else if (msg instanceof EncryptionResponsePacket packet) {
-            processC2SResponse(ctx, packet);
-        } else {
-            super.channelRead(ctx, msg);
+            case ServerLoginPacket packet -> {
+                if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+                    super.channelRead(ctx, msg);
+                    return;
+                }
+                processC2SHello(ctx, packet);
+            }
+            case EncryptionResponsePacket packet -> processC2SResponse(ctx, packet);
+            default -> super.channelRead(ctx, msg);
         }
     }
 
@@ -96,8 +97,8 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
             byte[] decryptedSharedSecret = decryptRsa(serverKeyPair, packet.getSharedSecret());
             connection.enableEncryption(decryptedSharedSecret);
             channel.eventLoop().schedule(() -> {
-                processor.uninject(channel);
                 ctx.fireChannelRead(processor.getCache().remove(username));
+                processor.uninject(channel);
             }, 500, TimeUnit.MILLISECONDS); // Let you know you are using encryption :)
         } catch (Exception e) {
             throw new IllegalStateException("Protocol error", e);
