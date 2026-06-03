@@ -13,4 +13,4 @@ pluginManagement {
     }
 }
 
-include(":common", ":paper", ":velocity")
+include(":common", ":paper", ":velocity", ":compatibility")

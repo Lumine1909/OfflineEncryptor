@@ -8,7 +8,7 @@ import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
-import io.github.lumine1909.offlineencryptor.ViaVersionUtil;
+import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,7 +26,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
 
     private static final Field<Boolean> field$authenticate = Field.of(EncryptionRequestPacket.class, "shouldAuthenticate");
 
-    private static final ViaVersionUtil viaUtil = ViaVersionUtil.create(true, plugin.getServer().getPluginManager().getPlugin("viaversion").isPresent());
+    private static final ViaVersionCompat viaCompat = ViaVersionCompat.create(true, plugin.getServer().getPluginManager().getPlugin("viaversion").isPresent());
 
     private final MinecraftConnection connection;
     private byte[] verify;
@@ -48,7 +48,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
                 super.channelRead(ctx, msg);
             }
             case ServerLoginPacket packet -> {
-                if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+                if (!validate(viaCompat.getProtocolVersion(channel))) {
                     super.channelRead(ctx, msg);
                     return;
                 }
@@ -61,8 +61,8 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
 
     @Override
     protected void processC2SHandshake(ChannelHandlerContext ctx, HandshakePacket packet) {
-        if (!viaUtil.hasVia()) {
-            validateVersion(packet.getProtocolVersion().getProtocol());
+        if (!viaCompat.hasVia()) {
+            validate(packet.getProtocolVersion().getProtocol());
         }
     }
 

@@ -2,7 +2,8 @@ package io.github.lumine1909.offlineencryptor.paper;
 
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
-import io.github.lumine1909.offlineencryptor.ViaVersionUtil;
+import io.github.lumine1909.offlineencryptor.compat.PreAuthEventCompat;
+import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,7 +28,9 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
     private static final Function<ServerLoginPacketListenerImpl, ClientboundHelloPacket> HELLO_PACKET_FACTORY = listener ->
         new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(listener), false);
     private static final MinecraftServer server = MinecraftServer.getServer();
-    private static final ViaVersionUtil viaUtil = ViaVersionUtil.create(false, Bukkit.getPluginManager().getPlugin("ViaVersion") != null);
+
+    private static final ViaVersionCompat viaCompat = ViaVersionCompat.create(false, Bukkit.getPluginManager().getPlugin("ViaVersion") != null);
+    private static final PreAuthEventCompat preAuthCompat = PreAuthEventCompat.create();
 
     private final Connection connection;
 
@@ -48,7 +51,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
                 super.channelRead(ctx, msg);
             }
             case ServerboundHelloPacket packet -> {
-                if (!validateVersion(viaUtil.getProtocolVersion(channel))) {
+                if (!validate(viaCompat.getProtocolVersion(channel), preAuthCompat.checkForPreAuthEvent(packet.name(), packet.profileId(), connection.getRemoteAddress()))) {
                     super.channelRead(ctx, msg);
                     return;
                 }
@@ -61,8 +64,8 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
 
     @Override
     protected void processC2SHandshake(ChannelHandlerContext ctx, ClientIntentionPacket packet) {
-        if (!viaUtil.hasVia()) {
-            validateVersion(packet.protocolVersion());
+        if (!viaCompat.hasVia()) {
+            validate(packet.protocolVersion());
         }
     }
 

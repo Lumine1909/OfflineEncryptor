@@ -1,4 +1,4 @@
-package io.github.lumine1909.offlineencryptor;
+package io.github.lumine1909.offlineencryptor.compat;
 
 import com.viaversion.viaversion.api.connection.ProtocolInfo;
 import com.viaversion.viaversion.api.connection.UserConnection;
@@ -8,9 +8,9 @@ import io.netty.channel.Channel;
 
 import java.util.Optional;
 
-public interface ViaVersionUtil {
+public interface ViaVersionCompat {
 
-    static ViaVersionUtil create(boolean isVelocity, boolean hasVia) {
+    static ViaVersionCompat create(boolean isVelocity, boolean hasVia) {
         if (!hasVia) {
             return new Dummy();
         }
@@ -31,7 +31,7 @@ public interface ViaVersionUtil {
         return true;
     }
 
-    class Velocity implements ViaVersionUtil {
+    class Velocity implements ViaVersionCompat {
 
         private static final Field<UserConnection> field$UserConnection;
 
@@ -55,7 +55,7 @@ public interface ViaVersionUtil {
         }
     }
 
-    class Paper implements ViaVersionUtil {
+    class Paper implements ViaVersionCompat {
 
         private static final Field<UserConnection> field$UserConnection;
 
@@ -79,7 +79,7 @@ public interface ViaVersionUtil {
         }
     }
 
-    class Dummy implements ViaVersionUtil {
+    class Dummy implements ViaVersionCompat {
 
         @Override
         public int getProtocolVersion(Channel channel) {
