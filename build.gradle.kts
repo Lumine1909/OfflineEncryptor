@@ -68,7 +68,7 @@ subprojects {
         maven("https://repo.velocitypowered.com/snapshots/")
     }
     dependencies {
-        implementation("io.github.lumine1909:reflexion:0.4.1")
+        implementation("io.github.lumine1909:reflexion:0.5.0")
         compileOnly("io.netty:netty-all:4.1.118.Final")
     }
     java {

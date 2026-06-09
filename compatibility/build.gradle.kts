@@ -1,6 +1,6 @@
 repositories {
     maven("https://repo.viaversion.com")
-    mavenLocal()
+    maven("https://maven.leafmc.one/snapshots/")
 }
 
 dependencies {
