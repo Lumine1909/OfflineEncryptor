@@ -2,7 +2,7 @@ package io.github.lumine1909.offlineencryptor.paper;
 
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
-import io.github.lumine1909.offlineencryptor.compat.PreAuthEventCompat;
+import io.github.lumine1909.offlineencryptor.compat.AuthenticateCompats;
 import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
@@ -15,7 +15,6 @@ import net.minecraft.network.protocol.login.ServerboundKeyPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import net.minecraft.util.CryptException;
-import org.bukkit.Bukkit;
 
 import javax.crypto.SecretKey;
 import java.security.PrivateKey;
@@ -29,8 +28,8 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
         new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(listener), false);
     private static final MinecraftServer server = MinecraftServer.getServer();
 
-    private static final ViaVersionCompat viaCompat = ViaVersionCompat.create(false, Bukkit.getPluginManager().getPlugin("ViaVersion") != null);
-    private static final PreAuthEventCompat preAuthCompat = PreAuthEventCompat.create();
+    private final ViaVersionCompat viaCompat = OfflineEncryptor.plugin.getViaVersionCompat();
+    private final AuthenticateCompats authCompat = OfflineEncryptor.plugin.getAuthenticateCompats();
 
     private final Connection connection;
 
@@ -51,7 +50,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
                 super.channelRead(ctx, msg);
             }
             case ServerboundHelloPacket packet -> {
-                if (!validate(viaCompat.getProtocolVersion(channel), preAuthCompat.checkForPreAuthEvent(packet.name(), packet.profileId(), connection.getRemoteAddress()))) {
+                if (!validate(viaCompat.getProtocolVersion(channel), authCompat.hasAuthenticate(packet.name(), packet.profileId(), connection.getRemoteAddress()))) {
                     super.channelRead(ctx, msg);
                     return;
                 }

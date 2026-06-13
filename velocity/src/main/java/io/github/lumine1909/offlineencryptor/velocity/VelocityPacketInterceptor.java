@@ -8,6 +8,7 @@ import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
+import io.github.lumine1909.offlineencryptor.compat.AuthenticateCompats;
 import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
@@ -26,7 +27,8 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
 
     private static final Field<Boolean> field$authenticate = Field.of(EncryptionRequestPacket.class, "shouldAuthenticate");
 
-    private static final ViaVersionCompat viaCompat = ViaVersionCompat.create(true, plugin.getServer().getPluginManager().getPlugin("viaversion").isPresent());
+    private final AuthenticateCompats authCompat = plugin.getAuthenticateCompats();
+    private final ViaVersionCompat viaCompat = plugin.getViaVersionCompat();
 
     private final MinecraftConnection connection;
     private byte[] verify;
@@ -48,7 +50,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
                 super.channelRead(ctx, msg);
             }
             case ServerLoginPacket packet -> {
-                if (!validate(viaCompat.getProtocolVersion(channel))) {
+                if (!validate(viaCompat.getProtocolVersion(channel), authCompat.hasAuthenticate(packet.getUsername(), packet.getHolderUuid(), connection.getRemoteAddress()))) {
                     super.channelRead(ctx, msg);
                     return;
                 }
