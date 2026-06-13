@@ -4,8 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.function.BooleanSupplier;
-
 public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse> extends ChannelDuplexHandler {
 
     private static final int PROTOCOL_1_20_5 = 766;
@@ -15,26 +13,25 @@ public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse> ext
 
     protected boolean enabled = true;
 
-    protected String username;
+    protected String username = null;
 
     protected PacketInterceptor(Channel channel, NetworkProcessor<C2SHello> processor) {
         this.channel = channel;
         this.processor = processor;
     }
 
-    protected boolean validate(int protocolVersion) {
-        return validate(protocolVersion, false);
+    protected void validate(int protocolVersion) {
+        validate(protocolVersion, false);
     }
 
-    protected boolean validate(int protocolVersion, boolean invalid) {
-        if (protocolVersion < PROTOCOL_1_20_5 || invalid) {
+    protected boolean validate(int protocolVersion, boolean hasAuth) {
+        if (protocolVersion < PROTOCOL_1_20_5 || hasAuth) {
             processor.uninject(channel);
             enabled = false;
             return false;
         }
         return true;
     }
-
 
     protected abstract void processC2SHandshake(ChannelHandlerContext ctx, C2SHandshake packet);
 
