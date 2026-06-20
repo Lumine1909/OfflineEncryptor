@@ -65,7 +65,7 @@ public class AuthenticateCompats {
 
         @Override
         public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress) {
-            return new AsyncPreAuthenticateEvent(username, uuid, socketAddress, true).callEvent();
+            return new AsyncPreAuthenticateEvent(username, uuid, socketAddress, false).callEvent();
         }
     }
 
