@@ -87,6 +87,9 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
             SecretKey secretKey = packet.getSecretKey(privateKey);
             this.connection.setEncryptionKey(secretKey);
             channel.eventLoop().schedule(() -> {
+                if (!channel.isActive()) {
+                    return;
+                }
                 ctx.fireChannelRead(processor.getCache().remove(username));
                 processor.uninject(channel);
             }, 500, TimeUnit.MILLISECONDS); // Let you know you are using encryption :)

@@ -31,7 +31,7 @@ public class AuthenticateCompats {
                 continue;
             }
             hasEnabled = true;
-            hasAuth |= authCompat.hasAuthenticate(username, uuid, socketAddress);
+            hasAuth |= authCompat.hasAuthentication(username, uuid, socketAddress);
         }
         return hasEnabled ? hasAuth : disableByDefault.getAsBoolean();
     }
@@ -40,7 +40,7 @@ public class AuthenticateCompats {
 
         boolean isEnable();
 
-        boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress);
+        boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress);
     }
 
     static class LeafEvent implements AuthCompat {
@@ -64,8 +64,8 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress) {
-            return new AsyncPreAuthenticateEvent(username, uuid, socketAddress, false).callEvent();
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress) {
+            return new AsyncPreAuthenticateEvent(username, uuid, socketAddress, !Bukkit.getOnlineMode()).callEvent();
         }
     }
 
@@ -92,7 +92,7 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin("LimitedOfflineMode");
             return plugin != null && !method$isUserAllowed.invoke(plugin, username);
         }

@@ -99,6 +99,9 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
             byte[] decryptedSharedSecret = decryptRsa(serverKeyPair, packet.getSharedSecret());
             connection.enableEncryption(decryptedSharedSecret);
             channel.eventLoop().schedule(() -> {
+                if (!channel.isActive()) {
+                    return;
+                }
                 ctx.fireChannelRead(processor.getCache().remove(username));
                 processor.uninject(channel);
             }, 500, TimeUnit.MILLISECONDS); // Let you know you are using encryption :)
