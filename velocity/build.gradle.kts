@@ -1,5 +1,5 @@
 repositories {
-    maven("https://maven.elytrium.net/repo/") // Thank you elytrium team!
+    maven("https://repo.william278.net/velocity") // Thank you william278!
 }
 
 dependencies {
