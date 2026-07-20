@@ -6,5 +6,6 @@ folia-supported: true
 softdepend:
   - ViaVersion
   - LimitedOfflineMode
+  - FastLogin
 authors:
   - Lumine1909

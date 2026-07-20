@@ -50,7 +50,12 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
                 super.channelRead(ctx, msg);
             }
             case ServerLoginPacket packet -> {
-                if (!validate(viaCompat.getProtocolVersion(channel), authCompat.hasAuthenticate(packet.getUsername(), packet.getHolderUuid(), connection.getRemoteAddress()))) {
+                if (!validate(
+                    viaCompat.getProtocolVersion(channel),
+                    authCompat.hasAuthenticate(
+                        packet.getUsername(), packet.getHolderUuid(), connection.getRemoteAddress(),
+                        connection, connection.getActiveSessionHandler())
+                )) {
                     super.channelRead(ctx, msg);
                     return;
                 }
