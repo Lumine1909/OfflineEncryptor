@@ -15,7 +15,7 @@ public class OfflineEncryptor extends JavaPlugin {
     private static final Key KEY = Key.key("oe:handler");
 
     public static OfflineEncryptor plugin;
-    private final AuthenticateCompats authenticateCompats = AuthenticateCompats.create(() -> Bukkit.getOnlineMode() || Bukkit.getServerConfig().isProxyEnabled());
+    private final AuthenticateCompats authenticateCompats = AuthenticateCompats.create(Bukkit::getOnlineMode);
     private final ViaVersionCompat viaVersionCompat = ViaVersionCompat.create(false, Bukkit.getPluginManager().getPlugin("ViaVersion") != null);
     private final NetworkProcessor<ServerboundHelloPacket> networkProcessor = new PaperNetworkProcessor();
 

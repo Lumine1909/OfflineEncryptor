@@ -2,9 +2,9 @@ package io.github.lumine1909.offlineencryptor.compat;
 
 import com.github.games647.fastlogin.bukkit.FastLoginBukkit;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
+import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
-import com.velocitypowered.proxy.connection.client.LoginInboundConnection;
 import io.github.lumine1909.reflexion.Field;
 import io.github.lumine1909.reflexion.Method;
 import io.github.lumine1909.reflexion.exception.NotFoundException;
@@ -25,7 +25,7 @@ public class AuthenticateCompats {
 
     private AuthenticateCompats(BooleanSupplier disableByDefault, Object serverInstance) {
         this.disableByDefault = disableByDefault;
-        this.authCompats = List.of(new LeafEvent(), new LOMCompat(), new FastLoginBukkitCompat(), new VelocityPreLoginCompat(serverInstance));
+        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOMCompat(), new FastLoginBukkitCompat(), new VelocityEvent(serverInstance));
     }
 
     public static AuthenticateCompats create(BooleanSupplier disableByDefault) {
@@ -37,16 +37,20 @@ public class AuthenticateCompats {
     }
 
     public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
-        boolean hasEnabled = false;
-        boolean hasAuth = false;
-        for (AuthCompat authCompat : authCompats) {
-            if (!authCompat.isEnable()) {
-                continue;
+        try {
+            for (AuthCompat authCompat : authCompats) {
+                if (!authCompat.isEnable()) {
+                    continue;
+                }
+                if (authCompat.hasAuthentication(username, uuid, socketAddress, otherParams)) {
+                    return true;
+                }
             }
-            hasEnabled = true;
-            hasAuth |= authCompat.hasAuthentication(username, uuid, socketAddress, otherParams);
+            return disableByDefault.getAsBoolean();
+        } catch (Throwable t) {
+            t.printStackTrace(); // What's happened?
+            return true; // Disable encryption for safety
         }
-        return hasEnabled ? hasAuth : disableByDefault.getAsBoolean();
     }
 
     public interface AuthCompat {
@@ -54,6 +58,32 @@ public class AuthenticateCompats {
         boolean isEnable();
 
         boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams);
+    }
+
+    static class DisableWithProxy implements AuthCompat {
+
+        private final boolean enable;
+
+        DisableWithProxy() {
+            boolean enable;
+            try {
+                Class.forName("org.bukkit.Bukkit");
+                enable = true;
+            } catch (ClassNotFoundException e) {
+                enable = false;
+            }
+            this.enable = enable;
+        }
+
+        @Override
+        public boolean isEnable() {
+            return enable;
+        }
+
+        @Override
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+            return Bukkit.getServerConfig().isProxyEnabled();
+        }
     }
 
     static class LeafEvent implements AuthCompat {
@@ -143,13 +173,13 @@ public class AuthenticateCompats {
         }
     }
 
-    static class VelocityPreLoginCompat implements AuthCompat {
+    static class VelocityEvent implements AuthCompat {
 
         private final boolean enable;
         private final Object proxyServer;
         private final Field<?> field$inbound;
 
-        VelocityPreLoginCompat(Object proxyServer) {
+        VelocityEvent(Object proxyServer) {
             Field<?> field$inbound;
             boolean enable = true;
             try {
@@ -171,22 +201,17 @@ public class AuthenticateCompats {
         // Awful but I have to do that
         @Override
         public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
-            try {
-                VelocityServer server = (VelocityServer) proxyServer;
-                MinecraftConnection mcConnection = (MinecraftConnection) otherParams[0];
-                LoginInboundConnection inbound = field$inbound.getUntyped(otherParams[1]);
+            VelocityServer server = (VelocityServer) proxyServer;
+            MinecraftConnection mcConnection = (MinecraftConnection) otherParams[0];
+            Object inbound = field$inbound.get(otherParams[1]);
 
-                final PreLoginEvent event = new PreLoginEvent(inbound, username, uuid);
-                server.getEventManager().fire(event).join();
-                if (mcConnection.isClosed()) {
-                    return true;
-                }
-                PreLoginEvent.PreLoginComponentResult result = event.getResult();
-                return !result.isForceOfflineMode() && (server.getConfiguration().isOnlineMode() || result.isOnlineModeAllowed());
-            } catch (Exception e) {
-                e.printStackTrace();
+            final PreLoginEvent event = new PreLoginEvent((InboundConnection) inbound, username, uuid);
+            server.getEventManager().fire(event).join();
+            if (mcConnection.isClosed()) {
+                return true;
             }
-            return true; // Disable encryption for safety
+            PreLoginEvent.PreLoginComponentResult result = event.getResult();
+            return !result.isForceOfflineMode() && (server.getConfiguration().isOnlineMode() || result.isOnlineModeAllowed());
         }
     }
 }
