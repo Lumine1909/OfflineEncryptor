@@ -29,7 +29,7 @@ public class OfflineEncryptor {
         this.server = (VelocityServer) server;
         this.logger = logger;
         this.metricsFactory = metricsFactory;
-        this.authenticateCompats = AuthenticateCompats.create(server.getConfiguration()::isOnlineMode);
+        this.authenticateCompats = AuthenticateCompats.create(server.getConfiguration()::isOnlineMode, server);
         this.viaVersionCompat = ViaVersionCompat.create(true, server.getPluginManager().getPlugin("viaversion").isPresent());
         plugin = this;
     }
