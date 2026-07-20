@@ -128,7 +128,7 @@ This plugin is for:
 
 * Version: 3.4.0+
 * Install the plugin **only on Velocity** if Velocity is present.
-* **The plugin in the backend server won't operate when using Velocity**
+* **This plugin in the backend server won't operate when using Velocity**
 
 #### Unsupported Server Types
 
