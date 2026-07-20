@@ -19,13 +19,10 @@ import net.minecraft.util.CryptException;
 import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPacket, ServerboundHelloPacket, ServerboundKeyPacket> {
 
     private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge");
-    private static final Function<ServerLoginPacketListenerImpl, ClientboundHelloPacket> HELLO_PACKET_FACTORY = listener ->
-        new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(listener), false);
     private static final MinecraftServer server = MinecraftServer.getServer();
 
     private final ViaVersionCompat viaCompat = OfflineEncryptor.plugin.getViaVersionCompat();
@@ -73,7 +70,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
         this.username = packet.name();
         ServerLoginPacketListenerImpl login = (ServerLoginPacketListenerImpl) connection.getPacketListener();
         processor.getCache().put(username, packet);
-        connection.send(HELLO_PACKET_FACTORY.apply(login));
+        connection.send(new ClientboundHelloPacket("", MinecraftServer.getServer().getKeyPair().getPublic().getEncoded(), field$challenge.get(login), false));
     }
 
     @Override
