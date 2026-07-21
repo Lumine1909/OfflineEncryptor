@@ -1,56 +1,60 @@
-# 🔐 OfflineEncryptor
-**A plugin that Enable vanilla Minecraft’s encryption handshake for offline-mode servers — without using Mojang authentication**
+# OfflineEncryptor
+A plugin that enable vanilla Minecraft's encryption for offline-mode servers, without using Mojang authentication.
+
+---
 
 ## What This Plugin Does
 
-This plugin implements the **standard Minecraft encryption protocol (AES/CFB8 + RSA key exchange)** on servers running in **offline mode**.
+This plugin implements the **standard Minecraft encryption protocol (AES/CFB8 + RSA key exchange)** handshaking on servers running in **offline mode**.
 Players still skip Mojang authentication, but the connection between client and server becomes encrypted exactly the same way as in **online-mode**.
-
-In short:
-🟢 **Offline players can join**
-🟢 **Traffic becomes encrypted**
-🔴 **No authentication / identity verification**
 
 ---
 
 ## Features
 
-* Uses real **Minecraft 1.7+ encryption handshake**
-* Protects traffic from sniffing
-* Compatible with **AuthMe** and similar offline login plugins
-* Does **not** require Mojang session servers
-* Zero changes required for clients — works with any vanilla client
+* Uses vanilla **Minecraft 1.7+ encryption**.
+* Does **not** require Mojang session servers.
+* Works with any vanilla client.
+* Tab player avatar will be available :).
 
-## ✅ Advantages
-
-### ✔️ **Protects sensitive packets**
+### What this can do (as enable encryption without authentication)
+<details>
+<summary>Protects sensitive packets</summary>
 
 * Prevents attackers on the same network from reading:
-
     * Player chat messages
-    * Commands (including `/login`, `/register`, AuthMe credentials)
+    * Commands (including `/login`, `/register`)
     * Inventory interactions
     * Movement packet details
 * Useful for LAN servers, VPN-shared servers, or hosts where you don’t fully trust the network path.
+---
+</details>
 
-### ✔️ **Stops trivial MITM sniffing**
+<details>
+<summary>Stops trivial MITM sniffing</summary>
 
 Encryption blocks attackers from:
 
-* Sniffing passwords sent to AuthMe
+* Sniffing passwords sent to login plugin like AuthMe
 * Quietly watching traffic in online cafés, dorms, shared Wi-Fi, cloud hosts, etc.
+---
+</details>
 
-### ✔️ **Zero client modification**
+<details>
+<summary>What It Does Secure</summary>
 
-Encryption uses the exact vanilla protocol, so players don’t need mods, plugins, or launchers.
+* Prevents sniffing of login passwords (AuthMe, etc.)
+* Hides movement, chat, and gameplay packets
+* Makes local/LAN attacks harder
+* Restores privacy similar to online-mode encryption
+---
+</details>
 
-### ✔️ **Drop-in for existing offline servers**
 
-Just enable it — nothing need to change, no data will be modified (UUID, username, etc.)
+### Limitations and traps
 
-## ⚠️ Limitations / Cons
-
-### ❌ **No actual identity verification**
+<details>
+<summary>No actual identity verification</summary>
 
 This plugin **does not make offline-mode secure against impersonation**.
 Because the Mojang `joinServer` authentication step is skipped:
@@ -60,11 +64,14 @@ Because the Mojang `joinServer` authentication step is skipped:
 
 You still need:
 
-* AuthMe / LoginSecurity / similar
+* Login plugins like AuthMe / LoginSecurity / similar
 * IP / Geo / 2FA plugins if desired
 * Proper permission handling
+---
+</details>
 
-### ❌ **Does NOT stop MITM modification**
+<details>
+<summary>Does NOT stop MITM modification</summary>
 
 Encryption happens *after* the initial handshake.
 A skilled attacker can still:
@@ -73,36 +80,43 @@ A skilled attacker can still:
 * Downgrade or strip encryption
 * Impersonate a player before encryption is negotiated
   Unless players use a secure connection (VPN, SSH tunnel, etc.)
+---
+</details>
 
-### ❌ **False sense of security if misunderstood**
+<details>
+<summary>False sense of security if misunderstood</summary>
 
 Some admins may think:
 
-> “We enabled encryption so offline mode is now secure.”
-> This is **incorrect** — authentication and encryption are separate things.
+> "We enabled encryption so offline mode is now secure."
 
-### ❌ **Slight CPU overhead**
+This is **incorrect**, authentication and encryption are separate things.
+
+---
+</details>
+
+<details>
+<summary>Slight CPU overhead</summary>
 
 AES/CFB8 encryption is not heavy, but on very large servers the extra per-packet cost exists.
 
 ---
+</details>
 
-## ✔️ What It *Does* Secure
-
-* Prevents sniffing of login passwords (AuthMe, etc.)
-* Hides movement, chat, and gameplay packets
-* Makes local/LAN attacks harder
-* Restores privacy similar to online-mode encryption
-
-## ❌ What It *Does NOT* Secure
+<details>
+<summary>What it DOES NOT Secure</summary>
 
 * Offline-mode username spoofing
 * Session stealing
 * Man-in-the-middle manipulation before encryption begins
 * Any kind of real authentication
+---
+</details>
+
+---
 
 
-## 📝 Summary
+## Summary
 
 If you want **privacy** for an offline-mode server, this plugin helps.
 If you want **security against impersonation**, you still need AuthMe (or similar) because **encryption ≠ authentication**.
@@ -114,7 +128,12 @@ This plugin is for:
 * Hosts needing protection against local sniffers
 * Privacy-conscious LAN/VPN servers
 
+---
 ## Compatibility & Installation
+
+Just drop it in to plugin folder, nothing need to change, no data will be modified (UUID, username, etc.).
+
+This plugin also support dynamic loading/unloading by PlugManX.
 
 ###  Supported Versions
 
@@ -130,27 +149,22 @@ This plugin is for:
 * Install the plugin **only on Velocity** if Velocity is present.
 * **This plugin in the backend server won't operate when using Velocity**
 
-#### Unsupported Server Types
-
-* Spigot / CraftBukkit
-* BungeeCord / Waterfall
-* Any server < 1.20.5
-
 ### Client Requirements
 
-* **Minecraft client 1.20.5 or newer**: Mojang changed the handshake and encryption flow in 1.20.5; older clients cannot complete the encryption sequence. This plugin **will not** send encrypted request packet to players with older versions.
+* **Minecraft client 1.20.5 or newer**: Mojang changed the handshake and encryption flow in 1.20.5. Older clients cannot complete the encryption sequence. This plugin **will not** send encrypted request packet to players with older versions.
+* ViaVersion can down-translate gameplay packets, but **encryption still requires the real client version to be 1.20.5+**.
 
-### ViaVersion Compatibility
 
-The plugin is **fully compatible** with the entire Via series:
+### Compatibility
 
-* [ViaVersion](https://github.com/ViaVersion/ViaVersion)
-* [ViaBackwards](https://github.com/ViaVersion/ViaBackwards)
-* [ViaRewind](https://github.com/ViaVersion/ViaRewind)
-
-ViaVersion can down-translate gameplay packets, but **encryption still requires the real client version to be 1.20.5+**.
+| Plugin / Server features                                                                                                   | Compatibility                                                                                        | 
+|----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| [ViaVersion](https://github.com/ViaVersion/ViaVersion)/VB/VR/VFP                                                           | Fully                                                                                                |
+| Leaf [PreAuthenticateEvent](https://github.com/Winds-Studio/Leaf/pull/749)                                                 | Fully                                                                                                |
+| [LimitedOfflineMode](https://github.com/chank-op/Limited-offline-mode-Paper)                                               | Fully                                                                                                |
+| Velocity [PreLoginEvent](https://jd.papermc.io/velocity/3.5.0/com/velocitypowered/api/event/connection/PreLoginEvent.html) | Fully                                                                                                |
+| [FastLogin](https://github.com/TuxCoding/FastLogin)                                                                        | Requires [fork version](https://github.com/Lumine1909/FastLogin_Fork/releases/tag/vcompat) on bukkit |
 
 ---
-
 **Netty pipeline after installed this plugin with [ViaVersion](https://github.com/ViaVersion/ViaVersion).**
 ![img.png](img.png)
