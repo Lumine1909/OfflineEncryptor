@@ -167,10 +167,10 @@ This plugin also support dynamic loading/unloading by PlugManX.
 
 | Plugin / Server features                                                                                                   | Compatibility                                                                                        | 
 |----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [ViaVersion](https://github.com/ViaVersion/ViaVersion)/VB/VR/VFP                                                           | Fully                                                                                                |
-| Leaf [PreAuthenticateEvent](https://github.com/Winds-Studio/Leaf/pull/749)                                                 | Fully                                                                                                |
-| [LimitedOfflineMode](https://github.com/chank-op/Limited-offline-mode-Paper)                                               | Fully                                                                                                |
-| Velocity [PreLoginEvent](https://jd.papermc.io/velocity/3.5.0/com/velocitypowered/api/event/connection/PreLoginEvent.html) | Fully                                                                                                |
+| [ViaVersion](https://github.com/ViaVersion/ViaVersion)/VB/VR/VFP                                                           | Full                                                                                                 |
+| Leaf [PreAuthenticateEvent](https://github.com/Winds-Studio/Leaf/pull/749)                                                 | Full                                                                                                 |
+| [LimitedOfflineMode](https://github.com/chank-op/Limited-offline-mode-Paper)                                               | Full                                                                                                 |
+| Velocity [PreLoginEvent](https://jd.papermc.io/velocity/3.5.0/com/velocitypowered/api/event/connection/PreLoginEvent.html) | Full                                                                                                 |
 | [FastLogin](https://github.com/TuxCoding/FastLogin)                                                                        | Requires [fork version](https://github.com/Lumine1909/FastLogin_Fork/releases/tag/vcompat) on bukkit |
 
 ---
