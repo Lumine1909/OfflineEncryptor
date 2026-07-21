@@ -20,7 +20,7 @@ Players still skip Mojang authentication, but the connection between client and 
 ### What this can do (as enable encryption without authentication)
 <details>
 <summary>Protects sensitive packets</summary>
-
+<br>
 * Prevents attackers on the same network from reading:
     * Player chat messages
     * Commands (including `/login`, `/register`)
@@ -32,7 +32,7 @@ Players still skip Mojang authentication, but the connection between client and 
 
 <details>
 <summary>Stops trivial MITM sniffing</summary>
-
+<br>
 Encryption blocks attackers from:
 
 * Sniffing passwords sent to login plugin like AuthMe
@@ -42,7 +42,7 @@ Encryption blocks attackers from:
 
 <details>
 <summary>What It Does Secure</summary>
-
+<br>
 * Prevents sniffing of login passwords (AuthMe, etc.)
 * Hides movement, chat, and gameplay packets
 * Makes local/LAN attacks harder
@@ -55,7 +55,7 @@ Encryption blocks attackers from:
 
 <details>
 <summary>No actual identity verification</summary>
-
+<br>
 This plugin **does not make offline-mode secure against impersonation**.
 Because the Mojang `joinServer` authentication step is skipped:
 
@@ -72,7 +72,7 @@ You still need:
 
 <details>
 <summary>Does NOT stop MITM modification</summary>
-
+<br>
 Encryption happens *after* the initial handshake.
 A skilled attacker can still:
 
@@ -85,7 +85,7 @@ A skilled attacker can still:
 
 <details>
 <summary>False sense of security if misunderstood</summary>
-
+<br>
 Some admins may think:
 
 > "We enabled encryption so offline mode is now secure."
@@ -97,7 +97,7 @@ This is **incorrect**, authentication and encryption are separate things.
 
 <details>
 <summary>Slight CPU overhead</summary>
-
+<br>
 AES/CFB8 encryption is not heavy, but on very large servers the extra per-packet cost exists.
 
 ---
@@ -105,7 +105,7 @@ AES/CFB8 encryption is not heavy, but on very large servers the extra per-packet
 
 <details>
 <summary>What it DOES NOT Secure</summary>
-
+<br>
 * Offline-mode username spoofing
 * Session stealing
 * Man-in-the-middle manipulation before encryption begins
