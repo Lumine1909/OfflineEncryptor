@@ -2,7 +2,7 @@ name: Java CI with Gradle and Release
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
 
 jobs:
   build_and_release:
