@@ -2,10 +2,7 @@ package io.github.lumine1909.offlineencryptor.velocity;
 
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.network.Connections;
-import com.velocitypowered.proxy.protocol.packet.EncryptionRequestPacket;
-import com.velocitypowered.proxy.protocol.packet.EncryptionResponsePacket;
-import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
-import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
+import com.velocitypowered.proxy.protocol.packet.*;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
 import io.github.lumine1909.offlineencryptor.compat.AuthenticateCompats;
@@ -13,6 +10,7 @@ import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -23,9 +21,10 @@ import java.util.concurrent.TimeUnit;
 import static com.velocitypowered.proxy.crypto.EncryptionUtils.decryptRsa;
 import static io.github.lumine1909.offlineencryptor.velocity.OfflineEncryptor.plugin;
 
-public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket, ServerLoginPacket, EncryptionResponsePacket> {
+public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket, ServerLoginPacket, EncryptionResponsePacket, JoinGamePacket> {
 
     private static final Field<Boolean> field$authenticate = Field.of(EncryptionRequestPacket.class, "shouldAuthenticate");
+    private static final Field<Boolean> field$onlineMode = Field.of(JoinGamePacket.class, "onlineMode", 1);
 
     private final AuthenticateCompats authCompat = plugin.getAuthenticateCompats();
     private final ViaVersionCompat viaCompat = plugin.getViaVersionCompat();
@@ -64,6 +63,14 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
             case EncryptionResponsePacket packet -> processC2SResponse(ctx, packet);
             default -> super.channelRead(ctx, msg);
         }
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (enabled && msg instanceof JoinGamePacket packet) {
+            processS2CLogin(ctx, packet);
+        }
+        super.write(ctx, msg, promise);
     }
 
     @Override
@@ -108,10 +115,17 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
                     return;
                 }
                 ctx.fireChannelRead(processor.getCache().remove(username));
-                processor.uninject(channel);
             }, 500, TimeUnit.MILLISECONDS); // Let you know you are using encryption :)
         } catch (Exception e) {
             throw new IllegalStateException("Protocol error", e);
         }
+    }
+
+    @Override
+    protected void processS2CLogin(ChannelHandlerContext ctx, JoinGamePacket packet) {
+        if (field$onlineMode != null) {
+            field$onlineMode.set(packet, true);
+        }
+        processor.uninject(channel);
     }
 }

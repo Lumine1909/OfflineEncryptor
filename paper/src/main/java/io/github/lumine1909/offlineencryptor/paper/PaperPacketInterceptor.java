@@ -7,7 +7,9 @@ import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundHelloPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
@@ -20,9 +22,10 @@ import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.util.concurrent.TimeUnit;
 
-public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPacket, ServerboundHelloPacket, ServerboundKeyPacket> {
+public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPacket, ServerboundHelloPacket, ServerboundKeyPacket, ClientboundLoginPacket> {
 
     private static final Field<byte[]> field$challenge = Field.of(ServerLoginPacketListenerImpl.class, "challenge");
+    private static final Field<Boolean> field$onlineMode = Field.of(ClientboundLoginPacket.class, "onlineMode", 1);
     private static final MinecraftServer server = MinecraftServer.getServer();
 
     private final ViaVersionCompat viaCompat = OfflineEncryptor.plugin.getViaVersionCompat();
@@ -59,6 +62,14 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
     }
 
     @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (enabled && msg instanceof ClientboundLoginPacket packet) {
+            processS2CLogin(ctx, packet);
+        }
+        super.write(ctx, msg, promise);
+    }
+
+    @Override
     protected void processC2SHandshake(ChannelHandlerContext ctx, ClientIntentionPacket packet) {
         if (!viaCompat.hasVia()) {
             validate(packet.protocolVersion());
@@ -88,10 +99,17 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
                     return;
                 }
                 ctx.fireChannelRead(processor.getCache().remove(username));
-                processor.uninject(channel);
             }, 500, TimeUnit.MILLISECONDS); // Let you know you are using encryption :)
         } catch (CryptException e) {
             throw new IllegalStateException("Protocol error", e);
         }
+    }
+
+    @Override
+    protected void processS2CLogin(ChannelHandlerContext ctx, ClientboundLoginPacket packet) {
+        if (field$onlineMode != null) {
+            field$onlineMode.set(packet, true);
+        }
+        processor.uninject(channel);
     }
 }

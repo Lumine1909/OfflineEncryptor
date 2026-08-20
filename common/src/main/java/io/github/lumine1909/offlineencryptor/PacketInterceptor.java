@@ -4,7 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 
-public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse> extends ChannelDuplexHandler {
+public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse, S2CLogin> extends ChannelDuplexHandler {
 
     private static final int PROTOCOL_1_20_5 = 766;
 
@@ -38,4 +38,6 @@ public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse> ext
     protected abstract void processC2SHello(ChannelHandlerContext ctx, C2SHello packet);
 
     protected abstract void processC2SResponse(ChannelHandlerContext ctx, C2SResponse packet);
+
+    protected abstract void processS2CLogin(ChannelHandlerContext ctx, S2CLogin packet);
 }
