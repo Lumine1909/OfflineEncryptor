@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse, S2CLogin> extends ChannelDuplexHandler {
 
     private static final int PROTOCOL_1_20_5 = 766;
+    private static final int PROTOCOL_26_2 = 776;
 
     protected final Channel channel;
     protected final NetworkProcessor<C2SHello> processor;
@@ -26,7 +27,9 @@ public abstract class PacketInterceptor<C2SHandshake, C2SHello, C2SResponse, S2C
 
     protected boolean validate(int protocolVersion, boolean hasAuth) {
         if (protocolVersion < PROTOCOL_1_20_5 || hasAuth) {
-            processor.uninject(channel);
+            if (protocolVersion < PROTOCOL_26_2) {
+                processor.uninject(channel);
+            }
             enabled = false;
             return false;
         }
