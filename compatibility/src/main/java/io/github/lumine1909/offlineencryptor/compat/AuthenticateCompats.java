@@ -1,5 +1,6 @@
 package io.github.lumine1909.offlineencryptor.compat;
 
+import com.github.games647.fastlogin.bukkit.FastLoginBukkit;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.proxy.VelocityServer;
@@ -27,7 +28,7 @@ public class AuthenticateCompats {
 
     private AuthenticateCompats(BooleanSupplier disableByDefault, Object serverInstance) {
         this.disableByDefault = disableByDefault;
-        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOM(), new FastLoginBukkit(), new AuthMePremium(), new VelocityEvent(serverInstance));
+        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
     }
 
     public static AuthenticateCompats create(BooleanSupplier disableByDefault) {
@@ -146,11 +147,11 @@ public class AuthenticateCompats {
         }
     }
 
-    static class FastLoginBukkit implements AuthCompat {
+    static class FastLogin implements AuthCompat {
 
         private final boolean enable;
 
-        FastLoginBukkit() {
+        FastLogin() {
             boolean enable = true;
             try {
                 Class.forName("com.github.games647.fastlogin.bukkit.FastLoginBukkit");
@@ -167,7 +168,7 @@ public class AuthenticateCompats {
 
         @Override
         public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
-            if (Bukkit.getPluginManager().getPlugin("FastLogin") instanceof com.github.games647.fastlogin.bukkit.FastLoginBukkit plugin && plugin.isEnabled()) {
+            if (Bukkit.getPluginManager().getPlugin("FastLogin") instanceof FastLoginBukkit plugin && plugin.isEnabled()) {
                 return plugin.getSession((InetSocketAddress) socketAddress).getVerifyToken().length != 0;
             } else {
                 return false;
