@@ -17,6 +17,7 @@ import org.dreeam.leaf.event.AsyncPreAuthenticateEvent;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
@@ -205,7 +206,7 @@ public class AuthenticateCompats {
         @Override
         public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("AuthMe") instanceof AuthMe plugin && plugin.isEnabled()) {
-                return field$verified.get(method$getSingleton.invoke(field$injector.get(plugin), PremiumLoginVerifier.class)).containsKey(username.toLowerCase());
+                return field$verified.get(method$getSingleton.invoke(field$injector.get(plugin), PremiumLoginVerifier.class)).containsKey(username.toLowerCase(Locale.ROOT));
             } else {
                 return false;
             }
