@@ -5,6 +5,8 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
+import fr.xephi.authme.AuthMe;
+import fr.xephi.authme.service.PremiumLoginVerifier;
 import io.github.lumine1909.reflexion.Field;
 import io.github.lumine1909.reflexion.Method;
 import io.github.lumine1909.reflexion.exception.NotFoundException;
@@ -16,6 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 
 public class AuthenticateCompats {
@@ -25,7 +28,7 @@ public class AuthenticateCompats {
 
     private AuthenticateCompats(BooleanSupplier disableByDefault, Object serverInstance) {
         this.disableByDefault = disableByDefault;
-        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOMCompat(), new FastLoginBukkitCompat(), new VelocityEvent(serverInstance));
+        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
     }
 
     public static AuthenticateCompats create(BooleanSupplier disableByDefault) {
@@ -113,14 +116,14 @@ public class AuthenticateCompats {
         }
     }
 
-    static class LOMCompat implements AuthCompat {
+    static class LOM implements AuthCompat {
 
         private final boolean enable;
         private final Method<Boolean> method$isUserAllowed;
 
-        LOMCompat() {
-            Method<Boolean> method$isUserAllowed;
+        LOM() {
             boolean enable = true;
+            Method<Boolean> method$isUserAllowed;
             try {
                 method$isUserAllowed = Method.of("de.moritxius.limitedofflinemode.LimitedOfflineModePaper", "isUserAllowed", boolean.class, String.class);
             } catch (NotFoundException e) {
@@ -144,11 +147,11 @@ public class AuthenticateCompats {
         }
     }
 
-    static class FastLoginBukkitCompat implements AuthCompat {
+    static class FastLogin implements AuthCompat {
 
         private final boolean enable;
 
-        FastLoginBukkitCompat() {
+        FastLogin() {
             boolean enable = true;
             try {
                 Class.forName("com.github.games647.fastlogin.bukkit.FastLoginBukkit");
@@ -167,6 +170,42 @@ public class AuthenticateCompats {
         public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("FastLogin") instanceof FastLoginBukkit plugin && plugin.isEnabled()) {
                 return plugin.getSession((InetSocketAddress) socketAddress).getVerifyToken().length != 0;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    static class AuthMePremium implements AuthCompat {
+
+        private static final Field<?> field$injector = Field.of("fr.xephi.authme.AuthMe", "injector", 1);
+        private static final Method<?> method$getSingleton = Method.of("ch.jalu.injector.Injector", "getSingleton", 1, Object.class, Class.class);
+
+        private final boolean enable;
+        private final Field<ConcurrentHashMap<String, ?>> field$verified;
+
+        AuthMePremium() {
+            boolean enable = true;
+            Field<ConcurrentHashMap<String, ?>> field$verified;
+            try {
+                field$verified = Field.of("fr.xephi.authme.service.PremiumLoginVerifier", "verified");
+            } catch (NotFoundException e) {
+                enable = false;
+                field$verified = null;
+            }
+            this.enable = enable;
+            this.field$verified = field$verified;
+        }
+
+        @Override
+        public boolean isEnable() {
+            return enable;
+        }
+
+        @Override
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+            if (Bukkit.getPluginManager().getPlugin("AuthMe") instanceof AuthMe plugin && plugin.isEnabled()) {
+                return field$verified.get(method$getSingleton.invoke(field$injector.get(plugin), PremiumLoginVerifier.class)).containsKey(username.toLowerCase());
             } else {
                 return false;
             }

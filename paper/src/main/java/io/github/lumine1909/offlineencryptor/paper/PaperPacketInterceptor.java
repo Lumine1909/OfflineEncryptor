@@ -63,7 +63,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (enabled && msg instanceof ClientboundLoginPacket packet) {
+        if (msg instanceof ClientboundLoginPacket packet) {
             processS2CLogin(ctx, packet);
         }
         super.write(ctx, msg, promise);

@@ -7,5 +7,6 @@ softdepend:
   - ViaVersion
   - LimitedOfflineMode
   - FastLogin
+  - AuthMe
 authors:
   - Lumine1909
