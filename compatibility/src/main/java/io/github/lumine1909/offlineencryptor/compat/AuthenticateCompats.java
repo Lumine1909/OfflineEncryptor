@@ -1,6 +1,7 @@
 package io.github.lumine1909.offlineencryptor.compat;
 
 import com.github.games647.fastlogin.bukkit.FastLoginBukkit;
+import com.nickuc.openlogin.bukkit.OpenLoginBukkit;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.proxy.VelocityServer;
@@ -29,7 +30,7 @@ public class AuthenticateCompats {
 
     private AuthenticateCompats(BooleanSupplier disableByDefault, Object serverInstance) {
         this.disableByDefault = disableByDefault;
-        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
+        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new OpenLogin(), new VelocityEvent(serverInstance));
     }
 
     public static AuthenticateCompats create(BooleanSupplier disableByDefault) {
@@ -207,6 +208,35 @@ public class AuthenticateCompats {
         public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("AuthMe") instanceof AuthMe plugin && plugin.isEnabled()) {
                 return field$verified.get(method$getSingleton.invoke(field$injector.get(plugin), PremiumLoginVerifier.class)).containsKey(username.toLowerCase(Locale.ROOT));
+            } else {
+                return false;
+            }
+        }
+    }
+
+    static class OpenLogin implements AuthCompat {
+
+        private final boolean enable;
+
+        OpenLogin() {
+            boolean enable = true;
+            try {
+                Class.forName("com.nickuc.openlogin.common.manager.LoginManagement");
+            } catch (ClassNotFoundException e) {
+                enable = false;
+            }
+            this.enable = enable;
+        }
+
+        @Override
+        public boolean isEnable() {
+            return enable;
+        }
+
+        @Override
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+            if (Bukkit.getPluginManager().getPlugin("OpeNLogin") instanceof OpenLoginBukkit plugin && plugin.isEnabled()) {
+                return plugin.getLoginManagement().isAuthenticated(username);
             } else {
                 return false;
             }

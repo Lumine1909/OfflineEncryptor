@@ -8,5 +8,6 @@ softdepend:
   - LimitedOfflineMode
   - FastLogin
   - AuthMe
+  - OpeNLogin
 authors:
   - Lumine1909
