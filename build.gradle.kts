@@ -56,6 +56,7 @@ modrinth {
     gameVersions.addAll(generateVersions("1.21", 0, 11))
     gameVersions.addAll(generateVersions("26.1", 0, 2))
     gameVersions.addAll(generateVersions("26.2", 0, 0))
+    gameVersions.addAll(generateVersions("26.3", 0, 0))
 }
 
 fun generateVersions(mm: String, start: Int, end: Int): List<String> = (start..end).map { if (it == 0) mm else "$mm.$it" }
