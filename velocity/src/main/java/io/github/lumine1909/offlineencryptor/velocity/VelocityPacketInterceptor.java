@@ -126,6 +126,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
         if (field$onlineMode != null) {
             field$onlineMode.set(packet, true);
         }
-        processor.uninject(channel);
+        // This may happen multiple times due to server switching, do not uninject.
+        //processor.uninject(channel);
     }
 }
