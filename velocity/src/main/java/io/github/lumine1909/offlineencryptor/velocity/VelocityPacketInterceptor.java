@@ -53,7 +53,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
                     viaCompat.getProtocolVersion(channel),
                     authCompat.hasAuthenticate(
                         packet.getUsername(), packet.getHolderUuid(), connection.getRemoteAddress(),
-                        connection, connection.getActiveSessionHandler())
+                        channel, connection, connection.getActiveSessionHandler())
                 )) {
                     super.channelRead(ctx, msg);
                     return;
