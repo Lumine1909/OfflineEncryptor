@@ -23,31 +23,31 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 
-public class AuthenticateCompats {
+public class EncryptionCompats {
 
-    public final List<AuthCompat> authCompats;
+    public final List<EncryptionCompat> encryptionCompats;
     private final BooleanSupplier disableByDefault;
 
-    private AuthenticateCompats(BooleanSupplier disableByDefault, Object serverInstance) {
+    private EncryptionCompats(BooleanSupplier disableByDefault, Object serverInstance) {
         this.disableByDefault = disableByDefault;
-        this.authCompats = List.of(new DisableWithProxy(), new HasEncrypted(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
+        this.encryptionCompats = List.of(new DisableWithProxy(), new ChannelHasEncryptor(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
     }
 
-    public static AuthenticateCompats create(BooleanSupplier disableByDefault) {
-        return new AuthenticateCompats(disableByDefault, null);
+    public static EncryptionCompats create(BooleanSupplier disableByDefault) {
+        return new EncryptionCompats(disableByDefault, null);
     }
 
-    public static AuthenticateCompats create(BooleanSupplier disableByDefault, Object serverInstance) {
-        return new AuthenticateCompats(disableByDefault, serverInstance);
+    public static EncryptionCompats create(BooleanSupplier disableByDefault, Object serverInstance) {
+        return new EncryptionCompats(disableByDefault, serverInstance);
     }
 
-    public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+    public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
         try {
-            for (AuthCompat authCompat : authCompats) {
-                if (!authCompat.isEnable()) {
+            for (EncryptionCompat encryptionCompat : encryptionCompats) {
+                if (!encryptionCompat.isEnable()) {
                     continue;
                 }
-                if (authCompat.hasAuthentication(username, uuid, socketAddress, channel, otherParams)) {
+                if (encryptionCompat.hasEncryption(username, uuid, socketAddress, channel, otherParams)) {
                     return true;
                 }
             }
@@ -58,14 +58,14 @@ public class AuthenticateCompats {
         }
     }
 
-    public interface AuthCompat {
+    public interface EncryptionCompat {
 
         boolean isEnable();
 
-        boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams);
+        boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams);
     }
 
-    static class DisableWithProxy implements AuthCompat {
+    static class DisableWithProxy implements EncryptionCompat {
 
         private final boolean enable;
 
@@ -86,12 +86,12 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             return Bukkit.getServerConfig().isProxyEnabled();
         }
     }
 
-    static class HasEncrypted implements AuthCompat {
+    static class ChannelHasEncryptor implements EncryptionCompat {
 
         @Override
         public boolean isEnable() {
@@ -99,12 +99,12 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             return channel.pipeline().get("encrypt") != null || channel.pipeline().get("cipher-encoder") != null;
         }
     }
 
-    static class LeafEvent implements AuthCompat {
+    static class LeafEvent implements EncryptionCompat {
 
         private final boolean enable;
 
@@ -126,12 +126,12 @@ public class AuthenticateCompats {
 
         // Awful but I have to do that
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             return new AsyncPreAuthenticateEvent(username, uuid, socketAddress, !Bukkit.getOnlineMode()).callEvent();
         }
     }
 
-    static class LOM implements AuthCompat {
+    static class LOM implements EncryptionCompat {
 
         private final boolean enable;
         private final Method<Boolean> method$isUserAllowed;
@@ -156,13 +156,13 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin("LimitedOfflineMode");
             return plugin != null && plugin.isEnabled() && !method$isUserAllowed.invoke(plugin, username);
         }
     }
 
-    static class FastLogin implements AuthCompat {
+    static class FastLogin implements EncryptionCompat {
 
         private final boolean enable;
 
@@ -182,7 +182,7 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("FastLogin") instanceof FastLoginBukkit plugin && plugin.isEnabled()) {
                 return plugin.getSession((InetSocketAddress) socketAddress).getVerifyToken().length != 0;
             } else {
@@ -191,7 +191,7 @@ public class AuthenticateCompats {
         }
     }
 
-    static class AuthMePremium implements AuthCompat {
+    static class AuthMePremium implements EncryptionCompat {
 
         private static final Field<?> field$injector = Field.of("fr.xephi.authme.AuthMe", "injector", 1);
         private static final Method<?> method$getSingleton = Method.of("ch.jalu.injector.Injector", "getSingleton", 1, Object.class, Class.class);
@@ -218,7 +218,7 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("AuthMe") instanceof AuthMe plugin && plugin.isEnabled()) {
                 return field$verified.get(method$getSingleton.invoke(field$injector.get(plugin), PremiumLoginVerifier.class)).containsKey(username.toLowerCase(Locale.ROOT));
             } else {
@@ -227,7 +227,7 @@ public class AuthenticateCompats {
         }
     }
 
-    static class VelocityEvent implements AuthCompat {
+    static class VelocityEvent implements EncryptionCompat {
 
         private final boolean enable;
         private final Object proxyServer;
@@ -254,7 +254,7 @@ public class AuthenticateCompats {
 
         // Awful but I have to do that
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+        public boolean hasEncryption(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             VelocityServer server = (VelocityServer) proxyServer;
             MinecraftConnection mcConnection = (MinecraftConnection) otherParams[0];
             Object inbound = field$inbound.get(otherParams[1]);

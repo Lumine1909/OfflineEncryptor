@@ -5,7 +5,7 @@ import com.velocitypowered.proxy.network.Connections;
 import com.velocitypowered.proxy.protocol.packet.*;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
-import io.github.lumine1909.offlineencryptor.compat.AuthenticateCompats;
+import io.github.lumine1909.offlineencryptor.compat.EncryptionCompats;
 import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
@@ -26,7 +26,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
     private static final Field<Boolean> field$authenticate = Field.of(EncryptionRequestPacket.class, "shouldAuthenticate");
     private static final Field<Boolean> field$onlineMode = Field.of(JoinGamePacket.class, "onlineMode", 1);
 
-    private final AuthenticateCompats authCompat = plugin.getAuthenticateCompats();
+    private final EncryptionCompats encryptionCompats = plugin.getEncryptionCompats();
     private final ViaVersionCompat viaCompat = plugin.getViaVersionCompat();
 
     private final MinecraftConnection connection;
@@ -51,7 +51,7 @@ public class VelocityPacketInterceptor extends PacketInterceptor<HandshakePacket
             case ServerLoginPacket packet -> {
                 if (!validate(
                     viaCompat.getProtocolVersion(channel),
-                    authCompat.hasAuthenticate(
+                    encryptionCompats.hasEncryption(
                         packet.getUsername(), packet.getHolderUuid(), connection.getRemoteAddress(),
                         channel, connection, connection.getActiveSessionHandler())
                 )) {

@@ -8,7 +8,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
-import io.github.lumine1909.offlineencryptor.compat.AuthenticateCompats;
+import io.github.lumine1909.offlineencryptor.compat.EncryptionCompats;
 import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.offlineencryptor.velocity.metrics.Metrics;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class OfflineEncryptor {
     private final VelocityServer server;
     private final Logger logger;
     private final Metrics.Factory metricsFactory;
-    private final AuthenticateCompats authenticateCompats;
+    private final EncryptionCompats encryptionCompats;
     private final ViaVersionCompat viaVersionCompat;
     private final NetworkProcessor<ServerLoginPacket> processor = new VelocityNetworkProcessor();
 
@@ -29,7 +29,7 @@ public class OfflineEncryptor {
         this.server = (VelocityServer) server;
         this.logger = logger;
         this.metricsFactory = metricsFactory;
-        this.authenticateCompats = AuthenticateCompats.create(server.getConfiguration()::isOnlineMode, server);
+        this.encryptionCompats = EncryptionCompats.create(server.getConfiguration()::isOnlineMode, server);
         this.viaVersionCompat = ViaVersionCompat.create(true, server.getPluginManager().getPlugin("viaversion").isPresent());
         plugin = this;
     }
@@ -53,8 +53,8 @@ public class OfflineEncryptor {
         processor.getCache().remove(event.getPlayer().getUsername());
     }
 
-    public AuthenticateCompats getAuthenticateCompats() {
-        return authenticateCompats;
+    public EncryptionCompats getEncryptionCompats() {
+        return encryptionCompats;
     }
 
     public ViaVersionCompat getViaVersionCompat() {

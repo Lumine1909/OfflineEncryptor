@@ -2,7 +2,7 @@ package io.github.lumine1909.offlineencryptor.paper;
 
 import io.github.lumine1909.offlineencryptor.NetworkProcessor;
 import io.github.lumine1909.offlineencryptor.PacketInterceptor;
-import io.github.lumine1909.offlineencryptor.compat.AuthenticateCompats;
+import io.github.lumine1909.offlineencryptor.compat.EncryptionCompats;
 import io.github.lumine1909.offlineencryptor.compat.ViaVersionCompat;
 import io.github.lumine1909.reflexion.Field;
 import io.netty.channel.Channel;
@@ -29,7 +29,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
     private static final MinecraftServer server = MinecraftServer.getServer();
 
     private final ViaVersionCompat viaCompat = OfflineEncryptor.plugin.getViaVersionCompat();
-    private final AuthenticateCompats authCompat = OfflineEncryptor.plugin.getAuthenticateCompats();
+    private final EncryptionCompats encryptionCompats = OfflineEncryptor.plugin.getEncryptionCompats();
 
     private final Connection connection;
 
@@ -50,7 +50,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
                 super.channelRead(ctx, msg);
             }
             case ServerboundHelloPacket packet -> {
-                if (!validate(viaCompat.getProtocolVersion(channel), authCompat.hasAuthenticate(packet.name(), packet.profileId(), connection.getRemoteAddress(), channel))) {
+                if (!validate(viaCompat.getProtocolVersion(channel), encryptionCompats.hasEncryption(packet.name(), packet.profileId(), connection.getRemoteAddress(), channel))) {
                     super.channelRead(ctx, msg);
                     return;
                 }
