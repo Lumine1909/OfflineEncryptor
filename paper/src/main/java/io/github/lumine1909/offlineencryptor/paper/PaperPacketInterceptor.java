@@ -50,7 +50,7 @@ public class PaperPacketInterceptor extends PacketInterceptor<ClientIntentionPac
                 super.channelRead(ctx, msg);
             }
             case ServerboundHelloPacket packet -> {
-                if (!validate(viaCompat.getProtocolVersion(channel), authCompat.hasAuthenticate(packet.name(), packet.profileId(), connection.getRemoteAddress()))) {
+                if (!validate(viaCompat.getProtocolVersion(channel), authCompat.hasAuthenticate(packet.name(), packet.profileId(), connection.getRemoteAddress(), channel))) {
                     super.channelRead(ctx, msg);
                     return;
                 }

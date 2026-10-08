@@ -10,6 +10,7 @@ import fr.xephi.authme.service.PremiumLoginVerifier;
 import io.github.lumine1909.reflexion.Field;
 import io.github.lumine1909.reflexion.Method;
 import io.github.lumine1909.reflexion.exception.NotFoundException;
+import io.netty.channel.Channel;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.dreeam.leaf.event.AsyncPreAuthenticateEvent;
@@ -29,7 +30,7 @@ public class AuthenticateCompats {
 
     private AuthenticateCompats(BooleanSupplier disableByDefault, Object serverInstance) {
         this.disableByDefault = disableByDefault;
-        this.authCompats = List.of(new DisableWithProxy(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
+        this.authCompats = List.of(new DisableWithProxy(), new HasEncrypted(), new LeafEvent(), new LOM(), new FastLogin(), new AuthMePremium(), new VelocityEvent(serverInstance));
     }
 
     public static AuthenticateCompats create(BooleanSupplier disableByDefault) {
@@ -40,13 +41,13 @@ public class AuthenticateCompats {
         return new AuthenticateCompats(disableByDefault, serverInstance);
     }
 
-    public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+    public boolean hasAuthenticate(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
         try {
             for (AuthCompat authCompat : authCompats) {
                 if (!authCompat.isEnable()) {
                     continue;
                 }
-                if (authCompat.hasAuthentication(username, uuid, socketAddress, otherParams)) {
+                if (authCompat.hasAuthentication(username, uuid, socketAddress, channel, otherParams)) {
                     return true;
                 }
             }
@@ -61,7 +62,7 @@ public class AuthenticateCompats {
 
         boolean isEnable();
 
-        boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams);
+        boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams);
     }
 
     static class DisableWithProxy implements AuthCompat {
@@ -85,8 +86,21 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             return Bukkit.getServerConfig().isProxyEnabled();
+        }
+    }
+
+    static class HasEncrypted implements AuthCompat {
+
+        @Override
+        public boolean isEnable() {
+            return true;
+        }
+
+        @Override
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
+            return channel.pipeline().get("encrypt") != null || channel.pipeline().get("cipher-encoder") != null;
         }
     }
 
@@ -112,7 +126,7 @@ public class AuthenticateCompats {
 
         // Awful but I have to do that
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             return new AsyncPreAuthenticateEvent(username, uuid, socketAddress, !Bukkit.getOnlineMode()).callEvent();
         }
     }
@@ -142,7 +156,7 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin("LimitedOfflineMode");
             return plugin != null && plugin.isEnabled() && !method$isUserAllowed.invoke(plugin, username);
         }
@@ -168,7 +182,7 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("FastLogin") instanceof FastLoginBukkit plugin && plugin.isEnabled()) {
                 return plugin.getSession((InetSocketAddress) socketAddress).getVerifyToken().length != 0;
             } else {
@@ -204,7 +218,7 @@ public class AuthenticateCompats {
         }
 
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             if (Bukkit.getPluginManager().getPlugin("AuthMe") instanceof AuthMe plugin && plugin.isEnabled()) {
                 return field$verified.get(method$getSingleton.invoke(field$injector.get(plugin), PremiumLoginVerifier.class)).containsKey(username.toLowerCase(Locale.ROOT));
             } else {
@@ -240,7 +254,7 @@ public class AuthenticateCompats {
 
         // Awful but I have to do that
         @Override
-        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Object... otherParams) {
+        public boolean hasAuthentication(String username, UUID uuid, SocketAddress socketAddress, Channel channel, Object... otherParams) {
             VelocityServer server = (VelocityServer) proxyServer;
             MinecraftConnection mcConnection = (MinecraftConnection) otherParams[0];
             Object inbound = field$inbound.get(otherParams[1]);
