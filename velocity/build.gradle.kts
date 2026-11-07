@@ -1,10 +1,6 @@
-repositories {
-    maven("https://repo.william278.net/velocity") // Thank you william278!
-}
-
 dependencies {
-    compileOnly("com.velocitypowered:velocity-api:3.5.0-SNAPSHOT")
-    compileOnly("com.velocitypowered:velocity-proxy:3.5.0-SNAPSHOT")
+    compileOnly("com.velocitypowered:velocity-api:3.6.0-SNAPSHOT")
+    compileOnly("com.velocitypowered:velocity-proxy:3.6.0-SNAPSHOT")
     implementation(project(":common"))
     implementation(project(":compatibility"))
 }

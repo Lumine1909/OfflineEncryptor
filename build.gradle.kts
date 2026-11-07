@@ -11,7 +11,7 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.velocitypowered.com/snapshots/")
+    maven("https://repo.william278.net/velocity") // Thank you william278!
 }
 
 dependencies {
@@ -67,10 +67,12 @@ subprojects {
     repositories {
         mavenCentral()
         maven("https://repo.papermc.io/repository/maven-public/")
-        maven("https://repo.velocitypowered.com/snapshots/")
+        maven("https://repo.viaversion.com/everything")
+        maven("https://maven.leafmc.one/snapshots")
+        maven("https://repo.william278.net/velocity") // Thank you william278!
     }
     dependencies {
-        implementation("io.github.lumine1909:reflexion:0.5.2")
+        implementation("io.github.lumine1909:reflexion:0.6.1")
         compileOnly("io.netty:netty-all:4.1.118.Final")
     }
     java {
