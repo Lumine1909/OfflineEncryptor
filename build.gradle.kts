@@ -72,7 +72,7 @@ subprojects {
         maven("https://repo.william278.net/velocity") // Thank you william278!
     }
     dependencies {
-        implementation("io.github.lumine1909:reflexion:0.6.1")
+        implementation("io.github.lumine1909:reflexion:0.7.0")
         compileOnly("io.netty:netty-all:4.1.118.Final")
     }
     java {
